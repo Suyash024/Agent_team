@@ -1,4 +1,4 @@
-# claude-team
+# Agent_team
 
 A universal **team skill** for [Claude Code](https://claude.com/claude-code). Claude detects every model on your device (local and cloud), assembles a lean team, and acts as lead. It delegates the heavy, token-hungry work to cheaper workers and reads back only short summaries, which saves tokens and context. The agents can message each other.
 
