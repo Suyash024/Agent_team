@@ -12,7 +12,7 @@
 import argparse, glob, json, os, re, shutil, subprocess, sys, time, urllib.request
 from datetime import date, datetime
 
-HOME = os.environ.get("TEAM_HOME", os.path.expanduser("~/.claude/team"))
+HOME = os.environ.get("TEAM_HOME", os.path.expanduser("~/.agent-team/state"))  # shared by every agent tool
 REG = os.path.join(HOME, "registry.json")
 BUS = os.path.join(HOME, "bus.jsonl")
 CUR = os.path.join(HOME, "cursors.json")

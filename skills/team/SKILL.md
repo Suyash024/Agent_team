@@ -3,10 +3,10 @@ name: team
 description: Assemble and lead a team of AI models for a task. Auto-detects every local (Ollama, LM Studio, llama.cpp, vLLM) and cloud (Anthropic, OpenAI, Gemini, Groq, Mistral, DeepSeek, xAI, OpenRouter, claude/codex/gemini CLIs) model on this device, builds a lean team, delegates work to save Claude's tokens and context, and lets agents message each other. Use when the user says "team", "use all my models", "delegate", "assemble agents", "use local models", or wants parallel/cheaper multi-model work.
 ---
 
-# team — Claude leads, every available model works
+# team — one lead, every available model works
 
-You are the **lead**. You plan, delegate, and merge. Workers do the bulk token-heavy work.
-All commands: `python3 ~/.claude/skills/team/scripts/team.py <cmd>` (alias it as `T`).
+Works in any coding agent (Claude Code, Codex, Gemini CLI, OpenCode, Cursor, Copilot, Aider…). You are the **lead** — whichever agent is reading this. You plan, delegate, and merge. Workers do the bulk token-heavy work.
+All commands: `python3 ~/.agent-team/scripts/team.py <cmd>` (alias it as `T`; Claude Code also has a copy at `~/.claude/skills/team/scripts/team.py`). State is shared in `~/.agent-team/state/`, so different agent tools see the same registry, bus and memory.
 
 ## Protocol (keep it cheap)
 
@@ -39,8 +39,8 @@ All commands: `python3 ~/.claude/skills/team/scripts/team.py <cmd>` (alias it as
 | ambiguity, architecture, final merge | **you** — don't delegate judgment |
 
 - Prefer local models for anything non-sensitive-to-quality; cloud models cost real money.
-- Claude models via API key or `claude` CLI appear in the registry like any other agent.
-  Without them, you can also use the native `Agent` tool with `model: haiku|sonnet` for Claude workers.
+- Cloud models via API key, and the `claude`/`codex`/`gemini` CLIs, appear in the registry like any other agent.
+  If your host has native subagents (e.g. Claude Code's `Agent` tool), you may use those as extra workers.
 - If a worker returns `ERROR:`, retry once with the next model of the same role, then do it yourself.
 - No models found → work solo; say so in one line, don't stall.
 
