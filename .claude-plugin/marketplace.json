@@ -1,0 +1,11 @@
+{
+  "name": "claude-team",
+  "owner": { "name": "Suyash" },
+  "plugins": [
+    {
+      "name": "team",
+      "source": "./",
+      "description": "Universal model team: auto-detect local + cloud models, delegate to save tokens, agents talk to each other."
+    }
+  ]
+}
