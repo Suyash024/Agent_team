@@ -4,7 +4,13 @@ A universal **team skill** for AI coding agents: **Claude Code, Codex CLI, Gemin
 
 ## Install
 
-**One line (all projects):**
+**Via the `skills` CLI (works with 40+ agents):**
+
+```bash
+npx skills add https://github.com/Suyash024/Agent_team --skill team
+```
+
+**Or one line (all projects):**
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/Suyash024/Agent_team/main/install.sh | bash
