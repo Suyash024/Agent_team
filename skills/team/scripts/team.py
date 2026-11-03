@@ -134,10 +134,10 @@ def detect():
         if prov == "openrouter": ms = ms[:0] or defaults  # catalog is huge; keep curated
         for m in ms: out.append(entry(prov, m, False, "openai", base, env, ok))
     # CLIs (use their own login; no key needed)
-    for cli, model in (("claude", "claude-cli"), ("codex", "codex-cli"), ("gemini", "gemini-cli")):
+    for cli, model in (("claude", "claude-cli"), ("codex", "codex-cli"), ("gemini", "gemini-cli"), ("opencode", "opencode-cli")):
         if shutil.which(cli):
             e = entry("cli", model, False, "cli", cli); e["tier"] = 3; e["caps"] = ["chat", "code", "reason"]
-            e["family"] = {"claude": "claude", "codex": "gpt", "gemini": "gemini"}[cli]
+            e["family"] = {"claude": "claude", "codex": "gpt", "gemini": "gemini", "opencode": "opencode"}[cli]
             out.append(e)
     # de-dupe + cap per provider (keep tier diversity) to keep registry lean
     seen, final, per = set(), [], {}
@@ -224,6 +224,13 @@ def call(a, prompt, system):
         r = http(f"https://generativelanguage.googleapis.com/v1beta/models/{m}:generateContent?key={key}",
                  {"systemInstruction": {"parts": [{"text": system}]}, "contents": [{"parts": [{"text": prompt}]}]}, timeout=600)
         return r["candidates"][0]["content"]["parts"][0]["text"]
+    if a["via"] == "cli" and base == "opencode":
+        # read-only by default: deny edit/bash/web via OpenCode's permission config.
+        # Opt in to write access per run with TEAM_OPENCODE_WRITE=1 (OpenCode's own prompts/defaults apply).
+        env = dict(os.environ)
+        if os.environ.get("TEAM_OPENCODE_WRITE") != "1":
+            env["OPENCODE_PERMISSION"] = json.dumps({"edit": "deny", "bash": "deny", "webfetch": "deny"})
+        return subprocess.run(["opencode", "run", system + "\n\n" + prompt], capture_output=True, text=True, timeout=900, env=env).stdout
     if a["via"] == "cli":
         cmd = {"claude": ["claude", "-p", system + "\n\n" + prompt], "codex": ["codex", "exec", system + "\n\n" + prompt],
                "gemini": ["gemini", "-p", system + "\n\n" + prompt]}[base]

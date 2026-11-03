@@ -74,7 +74,9 @@ In your agent, say:
 | **Cloud APIs** | Anthropic, OpenAI, Gemini, Groq, Mistral, DeepSeek, xAI, OpenRouter. Set the usual env var, e.g. `OPENAI_API_KEY`. Models are listed from the live API. |
 | **CLIs** | `claude`, `codex`, `gemini` (they use their own logins, no key needed) |
 
-Nothing is detected = Claude works solo.
+Nothing is detected = the lead works solo.
+
+**OpenCode as a worker:** if `opencode` is on your PATH it appears as `opencode-cli`. It runs **read-only by default** (edit, bash and web tools denied via `OPENCODE_PERMISSION`). Set `TEAM_OPENCODE_WRITE=1` to let it write using OpenCode's own permission settings. Workers never get auto-approve flags.
 
 ## How it saves tokens
 
