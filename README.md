@@ -7,21 +7,21 @@ A universal **team skill** for [Claude Code](https://claude.com/claude-code). Cl
 **One line (all projects):**
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/Suyash024/claude-team/main/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/Suyash024/Agent_team/main/install.sh | bash
 ```
 
 **Or clone and run:**
 
 ```bash
-git clone https://github.com/Suyash024/claude-team.git
-cd claude-team && ./install.sh
+git clone https://github.com/Suyash024/Agent_team.git
+cd Agent_team && ./install.sh
 ```
 
 **Or as a Claude Code plugin:**
 
 ```
-/plugin marketplace add Suyash024/claude-team
-/plugin install team@claude-team
+/plugin marketplace add Suyash024/Agent_team
+/plugin install team@Agent_team
 ```
 
 **Per-project install:** `./install.sh --project`  

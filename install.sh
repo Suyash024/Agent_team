@@ -5,7 +5,7 @@
 #   ./install.sh --uninstall
 set -euo pipefail
 
-REPO="${TEAM_REPO:-Suyash024/claude-team}"
+REPO="${TEAM_REPO:-Suyash024/Agent_team}"
 BRANCH="${TEAM_BRANCH:-main}"
 DEST="$HOME/.claude/skills/team"
 [ "${1:-}" = "--project" ] && DEST="$PWD/.claude/skills/team"
