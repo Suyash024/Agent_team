@@ -6,7 +6,7 @@ description: Assemble and lead a team of AI models for a task. Auto-detects ever
 # team — one lead, every available model works
 
 Works in any coding agent (Claude Code, Codex, Gemini CLI, OpenCode, Cursor, Copilot, Aider…). You are the **lead** — whichever agent is reading this. You plan, delegate, and merge. Workers do the bulk token-heavy work.
-All commands: `python3 ~/.agent-team/scripts/team.py <cmd>` (alias it as `T`; Claude Code also has a copy at `~/.claude/skills/team/scripts/team.py`). State is shared in `~/.agent-team/state/`, so different agent tools see the same registry, bus and memory.
+All commands: `python3 <this skill's folder>/scripts/team.py <cmd>` (alias it as `T`). The folder is wherever this SKILL.md lives (e.g. `~/.claude/skills/team`, `~/.agents/skills/team`, or `~/.agent-team`). State is shared in `~/.agent-team/state/`, so different agent tools see the same registry, bus and memory.
 
 ## Protocol (keep it cheap)
 
