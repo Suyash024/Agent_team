@@ -44,6 +44,10 @@ All commands: `python3 <this skill's folder>/scripts/team.py <cmd>` (alias it as
 - If a worker returns `ERROR:`, retry once with the next model of the same role, then do it yourself.
 - No models found → work solo; say so in one line, don't stall.
 
+## Supported CLI agents
+
+Auto-detected if on PATH: claude, codex, gemini, opencode, goose, vibe, qwen, cursor-agent, copilot, aider, amp, droid, kiro-cli, crush. Add any other with `TEAM_EXTRA_CLIS='{"bin":["bin","-p","{p}"]}'` (`{p}` = prompt). CLIs run with stdin closed; `TEAM_TIMEOUT` (default 900s) caps each run.
+
 ## Safety
 
 - Workers receive only what's in the brief + their inbox. Don't paste secrets into briefs.

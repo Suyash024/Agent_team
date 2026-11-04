@@ -133,11 +133,11 @@ def detect():
         except Exception: ms, ok = defaults, False
         if prov == "openrouter": ms = ms[:0] or defaults  # catalog is huge; keep curated
         for m in ms: out.append(entry(prov, m, False, "openai", base, env, ok))
-    # CLIs (use their own login; no key needed)
-    for cli, model in (("claude", "claude-cli"), ("codex", "codex-cli"), ("gemini", "gemini-cli"), ("opencode", "opencode-cli")):
+    # CLIs (use their own login; no key needed). Add more via TEAM_EXTRA_CLIS='{"bin":["arg","{p}"]}'
+    for cli, (model, fam, _cmd) in cli_table().items():
         if shutil.which(cli):
             e = entry("cli", model, False, "cli", cli); e["tier"] = 3; e["caps"] = ["chat", "code", "reason"]
-            e["family"] = {"claude": "claude", "codex": "gpt", "gemini": "gemini", "opencode": "opencode"}[cli]
+            e["family"] = fam
             out.append(e)
     # de-dupe + cap per provider (keep tier diversity) to keep registry lean
     seen, final, per = set(), [], {}
@@ -152,6 +152,33 @@ def detect():
 def get_reg():
     r = load(REG, None)
     return r if r and r.get("agents") else detect()
+
+# ---------- CLI agents ----------
+# bin -> (registry model id, family, argv template; {p} = full prompt). All are non-interactive/headless modes.
+CLIS = {
+    "claude": ("claude-cli", "claude", ["claude", "-p", "{p}"]),
+    "codex": ("codex-cli", "gpt", ["codex", "exec", "{p}"]),
+    "gemini": ("gemini-cli", "gemini", ["gemini", "-p", "{p}"]),
+    "opencode": ("opencode-cli", "opencode", ["opencode", "run", "{p}"]),
+    "goose": ("goose-cli", "goose", ["goose", "run", "-t", "{p}"]),
+    "vibe": ("vibe-cli", "mistral", ["vibe", "-p", "{p}"]),
+    "qwen": ("qwen-cli", "qwen", ["qwen", "-p", "{p}"]),
+    "cursor-agent": ("cursor-cli", "cursor", ["cursor-agent", "-p", "{p}"]),
+    "copilot": ("copilot-cli", "gpt", ["copilot", "-p", "{p}"]),
+    "aider": ("aider-cli", "aider", ["aider", "--message", "{p}", "--yes-always", "--no-git"]),
+    "amp": ("amp-cli", "amp", ["amp", "-x", "{p}"]),
+    "droid": ("droid-cli", "droid", ["droid", "exec", "{p}"]),
+    "kiro-cli": ("kiro-cli", "kiro", ["kiro-cli", "chat", "--no-interactive", "{p}"]),
+    "crush": ("crush-cli", "crush", ["crush", "run", "{p}"]),
+}
+
+def cli_table():
+    t = dict(CLIS)
+    try:
+        for b, argv in json.loads(os.environ.get("TEAM_EXTRA_CLIS", "{}")).items():
+            t[b] = (b + "-cli", b, argv)
+    except Exception: pass
+    return t
 
 # ---------- plan ----------
 ROLES = [  # (role, needs cap, preferred tier order, prefer local)
@@ -224,17 +251,16 @@ def call(a, prompt, system):
         r = http(f"https://generativelanguage.googleapis.com/v1beta/models/{m}:generateContent?key={key}",
                  {"systemInstruction": {"parts": [{"text": system}]}, "contents": [{"parts": [{"text": prompt}]}]}, timeout=600)
         return r["candidates"][0]["content"]["parts"][0]["text"]
-    if a["via"] == "cli" and base == "opencode":
-        # read-only by default: deny edit/bash/web via OpenCode's permission config.
-        # Opt in to write access per run with TEAM_OPENCODE_WRITE=1 (OpenCode's own prompts/defaults apply).
-        env = dict(os.environ)
-        if os.environ.get("TEAM_OPENCODE_WRITE") != "1":
-            env["OPENCODE_PERMISSION"] = json.dumps({"edit": "deny", "bash": "deny", "webfetch": "deny"})
-        return subprocess.run(["opencode", "run", system + "\n\n" + prompt], capture_output=True, text=True, timeout=900, env=env).stdout
     if a["via"] == "cli":
-        cmd = {"claude": ["claude", "-p", system + "\n\n" + prompt], "codex": ["codex", "exec", system + "\n\n" + prompt],
-               "gemini": ["gemini", "-p", system + "\n\n" + prompt]}[base]
-        return subprocess.run(cmd, capture_output=True, text=True, timeout=900).stdout
+        env = dict(os.environ)
+        if base == "opencode" and os.environ.get("TEAM_OPENCODE_WRITE") != "1":
+            # read-only by default; opt in with TEAM_OPENCODE_WRITE=1
+            env["OPENCODE_PERMISSION"] = json.dumps({"edit": "deny", "bash": "deny", "webfetch": "deny"})
+        full = system + "\n\n" + prompt
+        argv = [x.replace("{p}", full) for x in cli_table()[base][2]]
+        r = subprocess.run(argv, capture_output=True, text=True, timeout=int(os.environ.get("TEAM_TIMEOUT", "900")),
+                           env=env, stdin=subprocess.DEVNULL)  # DEVNULL: CLIs must never wait on stdin
+        return r.stdout or ("ERROR: " + (r.stderr or "empty output")[-400:])
     raise RuntimeError("unknown transport " + a["via"])
 
 def resolve(name):
